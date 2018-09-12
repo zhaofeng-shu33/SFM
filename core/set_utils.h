@@ -91,7 +91,12 @@ public:
 
   Set Union(const Set& X) const;
   Set Intersection(const Set& X) const;
-
+  Set Extend(int value = 0) const {
+      Set X_new(*this);
+      X_new.n_++;
+      X_new.bits_.push_back(value);
+      return X_new;
+  }
   std::size_t n_;
   std::vector<char> bits_;
   friend std::ostream& operator << (std::ostream&, const Set&);
@@ -296,18 +301,42 @@ std::ostream& operator << (std::ostream& stream, const Set& X) {
   stream << "}";
   return stream;
 }
-
-bool operator == (const Set& lhs, const Set& rhs) {
-  if (lhs.n_ != rhs.n_) {
-    return false;
-  }
-  for (std::size_t i = 0; i < lhs.n_; ++i) {
-    if ((bool)lhs.bits_[i] != (bool)rhs.bits_[i]) {
-      return false;
+bool operator == (const Set& set_1, const Set& set_2) {
+    bool set_1_less = true;
+    if (set_2.n_ > set_1.n_)
+        set_1_less = false;
+    int min_len = set_1_less ? set_2.n_ : set_1.n_;
+    for(int i = 0; i < min_len; i++)
+        if ((bool)set_1.bits_[i] != (bool)set_2.bits_[i]) {
+            return false;
+        }
+    if(set_1_less){
+        for(int i=min_len; i < set_2.n_; i++){
+            if ((bool)set_2.bits_[i]) {
+                return false;
+            }
+        }
     }
-  }
-  return true;
+    else {
+        for (int i = min_len; i < set_1.n_; i++) {
+            if ((bool)set_1.bits_[i]) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
+//bool operator == (const Set& lhs, const Set& rhs) {
+//  if (lhs.n_ != rhs.n_) {
+//    return false;
+//  }
+//  for (std::size_t i = 0; i < lhs.n_; ++i) {
+//    if ((bool)lhs.bits_[i] != (bool)rhs.bits_[i]) {
+//      return false;
+//    }
+//  }
+//  return true;
+//}
 
 bool operator != (const Set& lhs, const Set& rhs) {
   return !(lhs == rhs);
